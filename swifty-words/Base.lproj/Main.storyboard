@@ -194,7 +194,7 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
-                        <outlet property="answersLabel" destination="rWV-DN-wfj" id="A9W-3F-gag"/>
+                        <outlet property="answerOrNumLettersLabel" destination="rWV-DN-wfj" id="A9W-3F-gag"/>
                         <outlet property="cluesLabel" destination="Ll2-bF-Fry" id="VLl-5Z-fjj"/>
                         <outlet property="currentAnswer" destination="dW4-Xi-Emt" id="EjH-W9-Y9N"/>
                         <outlet property="scoreLabel" destination="NFV-W8-p6c" id="z53-hj-pb8"/>

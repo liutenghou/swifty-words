@@ -12,7 +12,7 @@ import GameplayKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var cluesLabel: UILabel!
-    @IBOutlet weak var answersLabel: UILabel!
+    @IBOutlet weak var answerOrNumLettersLabel: UILabel!
     @IBOutlet weak var currentAnswer: UITextField!
     @IBOutlet weak var scoreLabel: UILabel!
     
@@ -24,11 +24,45 @@ class ViewController: UIViewController {
     var level = 1
     
     @IBAction func submitTapped(_ sender: UIButton) {
+        print("submit tapped \(sender)")
         
+        if let solutionIndex = solutions.index(of: currentAnswer.text!){
+            usedButtons.removeAll()
+            
+            var splitAnswers = answerOrNumLettersLabel.text!.components(separatedBy: "\n")
+            splitAnswers[solutionIndex] = currentAnswer.text!
+            answerOrNumLettersLabel.text = splitAnswers.joined(separator: "\n")
+            
+            currentAnswer.text = ""
+            score += 1
+            
+            //check if done
+            if score % 7 == 0 {
+                let ac = UIAlertController(title: "Well done!", message: "Are you ready for the next level?", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "Let's go!", style: .default, handler: levelUp))
+                present(ac, animated: true)
+            }
+            
+        }
     }
     
     @IBAction func clearTapped(_ sender: UIButton) {
+        print("clear tapped \(sender)")
+        currentAnswer.text = ""
         
+        for btn in usedButtons {
+            btn.isEnabled = true
+            btn.isHidden = false
+        }
+        usedButtons.removeAll()
+    }
+    
+    @objc func letterTapped(btn: UIButton){
+        print("button \(btn) tapped")
+        currentAnswer.text = currentAnswer.text! + btn.titleLabel!.text!
+        usedButtons.append(btn)
+        btn.isEnabled = false
+        btn.isHidden = true
     }
     
     override func viewDidLoad() {
@@ -44,11 +78,24 @@ class ViewController: UIViewController {
         loadLevel()
     }
     
+    func levelUp(action: UIAlertAction){
+        level += 1
+        solutions.removeAll(keepingCapacity: true)
+        
+        loadLevel()
+        
+        for btn in allButtons{
+            btn.isEnabled = true
+            btn.isHidden = false
+        }
+    }
+    
     func loadLevel(){
         var clue = ""
         var numberOfLettersHint = ""
         var allAnswerBits = [String]()
         
+        //open weird format level file, parse it
         if let levelFilePath = Bundle.main.path(forResource: "level\(level)", ofType: "txt"), let levelContents = try? String(contentsOfFile: levelFilePath){
             var lines: [String] = levelContents.components(separatedBy: "\n")
             lines = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: lines) as! [String]
@@ -71,7 +118,7 @@ class ViewController: UIViewController {
         
         //configure buttons and labels
         cluesLabel.text = clue.trimmingCharacters(in: .whitespacesAndNewlines)
-        answersLabel.text = numberOfLettersHint.trimmingCharacters(in: .whitespacesAndNewlines)
+        answerOrNumLettersLabel.text = numberOfLettersHint.trimmingCharacters(in: .whitespacesAndNewlines)
         
         allAnswerBits = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: allAnswerBits) as! [String]
         
@@ -83,11 +130,6 @@ class ViewController: UIViewController {
         
     }
     
-    @objc func letterTapped(btn: UIButton){
-        print("button \(btn) tapped")
-        
-    }
-
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
