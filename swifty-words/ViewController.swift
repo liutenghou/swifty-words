@@ -20,7 +20,12 @@ class ViewController: UIViewController {
     var usedButtons = [UIButton]()
     var solutions = [String]()
     
-    var score = 0
+    
+    var score = 0 { //property observer
+        willSet(newScore) {
+            scoreLabel.text = "Score: \(newScore)"
+        }
+    }
     var level = 1
     
     @IBAction func submitTapped(_ sender: UIButton) {
@@ -91,11 +96,12 @@ class ViewController: UIViewController {
     }
     
     func loadLevel(){
+        
         var clue = ""
         var numberOfLettersHint = ""
         var allAnswerBits = [String]()
         
-        //open weird format level file, parse it
+        //open weird format level file, parse it, store parts in arrays
         if let levelFilePath = Bundle.main.path(forResource: "level\(level)", ofType: "txt"), let levelContents = try? String(contentsOfFile: levelFilePath){
             var lines: [String] = levelContents.components(separatedBy: "\n")
             lines = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: lines) as! [String]
@@ -107,7 +113,7 @@ class ViewController: UIViewController {
                 
                 let answerBits: [String] = answerPart.components(separatedBy: "|")
                 let answer = answerPart.replacingOccurrences(of: "|", with: "")
-                clue = "\(index + 1). \(cluePart)\n"
+                clue = "\(index + 1)/\(line.count). \(cluePart)\n"
                 
                 numberOfLettersHint += "\(answer.count) letters\n"
                 solutions.append(answer)
@@ -117,6 +123,7 @@ class ViewController: UIViewController {
         }
         
         //configure buttons and labels
+        
         cluesLabel.text = clue.trimmingCharacters(in: .whitespacesAndNewlines)
         answerOrNumLettersLabel.text = numberOfLettersHint.trimmingCharacters(in: .whitespacesAndNewlines)
         
